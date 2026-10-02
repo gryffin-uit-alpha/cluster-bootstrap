@@ -1,9 +1,10 @@
 # EKS Cluster GitOps Bootstrap Repository
 
-> **Repository 3 in the Standard 3-Repo Production Model:**
-> 1. `App Repo`: Source code + CI pipeline (Build, Unit Test, Trivy, Push OCI Image).
-> 2. `Infra Repo (IaC)`: Terraform VPC, EKS Cluster, Node Groups, IAM Roles for Service Accounts (IRSA).
-> 3. **`GitOps Config Repo` (This Repo)**: ArgoCD App-of-Apps, Sync Waves, Observability, Policy-as-Code, and Application Delivery.
+> **Repository Role in the Multi-Repo Production Architecture:**
+> - `MyBlogSpot`: Application Source + CI Pipeline (Docker build, test, push OCI image).
+> - `infra`: Infrastructure as Code (Terraform VPC, EKS Cluster, Node Groups, IAM).
+> - **`cluster-bootstrap` (`config` - This Repo)**: Cluster-level Addons (StorageClass, Metrics Server, Policy as Code, Prometheus, Grafana, Loki).
+> - **`myblogspot-cd` (`cd`)**: Dedicated Application CD Repository (Workload Helm Charts, Environment Values, ArgoCD Application Workloads).
 
 ---
 
@@ -18,8 +19,7 @@
 │   ├── wave-0-kyverno.yaml             # [Wave 0]   Kyverno Admission Controller
 │   ├── wave-0-kyverno-policies.yaml    # [Wave 0]   Kyverno Security & Capacity Policies
 │   ├── wave-1-monitoring.yaml          # [Wave 1]   kube-prometheus-stack (Prometheus + Grafana)
-│   ├── wave-1-logging.yaml             # [Wave 1]   loki-stack (Loki + Promtail DaemonSet)
-│   └── wave-2-app.yaml                 # [Wave 2]   MyBlogSpot Application Helm Workload
+│   └── wave-1-logging.yaml             # [Wave 1]   loki-stack (Loki + Promtail DaemonSet)
 │
 ├── bootstrap/                          # Manifests & tuned values organized by Wave
 │   ├── wave--2-storage/
@@ -34,14 +34,8 @@
 │   └── wave-1-logging/
 │       └── loki-values.yaml            # Loki SingleBinary gp3 PVC + Promtail values
 │
-├── helm/
-│   └── myblogspot/                     # MyBlogSpot Helm Chart (Backend, Frontend, Ingress)
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       ├── values-staging.yaml
-│       └── values-prod.yaml
-│
-└── legacy/                             # Preserved initial manifests for reference
+├── .gitignore                          # Ignore rules (secrets, tfstate, logs)
+└── README.md                           # Documentation & quickstart
 ```
 
 ---
@@ -59,7 +53,6 @@ ArgoCD Sync Waves guarantee that dependencies are healthy before dependent resou
 | **`0`** | `wave-0-kyverno-policies` | `kyverno` | **Security Guardrails**. Enforces `runAsNonRoot: true`, container resource limits, and forbids `:latest` image tags. Configured in `Audit` mode with system namespaces excluded. |
 | **`1`** | `wave-1-monitoring` | `monitoring` | **Prometheus + Grafana + Alertmanager**. Scrapes cluster metrics, stores 7 days on 10Gi gp3 PVC. Automatically links Loki as datasource. |
 | **`1`** | `wave-1-logging` | `monitoring` | **Grafana Loki + Promtail DaemonSet**. Promtail scrapes node `/var/log/pods`, ships to Loki SingleBinary stored on 10Gi gp3 PVC. |
-| **`2`** | `wave-2-myblogspot` | `staging` | **Application Delivery**. Deploys the business workload (Backend Go API, Frontend React, Ingress) protected by Kyverno and monitored by Prometheus/Loki. |
 
 ---
 
@@ -89,7 +82,7 @@ To operate efficiently within a 2-node `t3.medium` cluster (8GB total RAM) witho
 When you are ready to push this repo to GitHub/GitLab:
 ```bash
 # Add your remote
-git remote add origin git@github.com:<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
+git remote add origin git@github.com:<YOUR_USERNAME>/cluster-bootstrap.git
 git branch -M main
 git push -u origin main
 ```
@@ -98,7 +91,7 @@ git push -u origin main
 Update the `repoURL` in `apps/*.yaml` to point to your new remote URL:
 ```bash
 # Replace with your actual repository URL
-sed -i 's|https://github.com/gryffin-uit-alpha/cluster-bootstrap.git|git@github.com:<YOUR_USERNAME>/<YOUR_REPO_NAME>.git|g' apps/*.yaml
+sed -i 's|https://github.com/gryffin-uit-alpha/cluster-bootstrap.git|git@github.com:<YOUR_USERNAME>/cluster-bootstrap.git|g' apps/*.yaml
 ```
 
 ### Step 3: Apply the Master Root App
