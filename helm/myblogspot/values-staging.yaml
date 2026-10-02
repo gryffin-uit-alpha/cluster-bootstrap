@@ -1,0 +1,49 @@
+# Staging Environment Overrides
+environment: staging
+
+backend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+frontend:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 192Mi
+
+ingress:
+  hosts:
+    - host: staging.gryffin-uit.site
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /livez
+          pathType: Exact
+          service: backend
+        - path: /readyz
+          pathType: Exact
+          service: backend
+        - path: /metrics
+          pathType: Exact
+          service: backend
+        - path: /uploads
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: myblogspot-staging-tls
+      hosts:
+        - staging.gryffin-uit.site

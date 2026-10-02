@@ -1,0 +1,60 @@
+# ==============================================================================
+# SYNC WAVE 1: OBSERVABILITY - LOGGING (Loki Stack: Loki + Promtail)
+# Ref: Knowledge_Base/Observability.md (Phần 2: Logs & Loki Architecture)
+# Single Binary Loki with gp3 PVC & Promtail DaemonSet log collector
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wave-1-logging
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: loki-stack
+    targetRevision: 2.10.2
+    helm:
+      values: |
+        loki:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClassName: gp3
+            size: 10Gi
+          config:
+            auth_enabled: false
+            table_manager:
+              retention_deletes_enabled: true
+              retention_period: 168h
+            limits_config:
+              retention_period: 168h
+              max_query_length: 721h
+              max_query_lookback: 720h
+
+        promtail:
+          enabled: true
+          config:
+            logLevel: info
+            clients:
+              - url: http://loki:3100/loki/api/v1/push
+
+        fluent-bit:
+          enabled: false
+
+        grafana:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

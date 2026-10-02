@@ -1,0 +1,31 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Helm packages and cache
+charts/*.tgz
+.helm/
+
+# Secrets / Credentials (Never commit plain secrets!)
+*.secret.yaml
+*.key
+*.pem
+secrets/
+
+# Terraform (if any scripts generate state)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl

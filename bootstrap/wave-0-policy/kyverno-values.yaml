@@ -1,0 +1,40 @@
+# ==============================================================================
+# KYVERNO VALUES (Staging 2-Node Optimized)
+# Ref: Knowledge_Base/Security.md (Phần 4: Policy as Code & Kyverno)
+# ==============================================================================
+
+admissionController:
+  replicas: 1
+  resources:
+    limits:
+      memory: 384Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+backgroundController:
+  replicas: 1
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
+
+cleanupController:
+  replicas: 1
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi
+
+reportsController:
+  replicas: 1
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 25m
+      memory: 64Mi

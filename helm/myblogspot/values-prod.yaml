@@ -1,0 +1,52 @@
+# Production Environment Overrides
+environment: production
+
+backend:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 150m
+      memory: 192Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+frontend:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+ingress:
+  hosts:
+    - host: gryffin-uit.site
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /livez
+          pathType: Exact
+          service: backend
+        - path: /readyz
+          pathType: Exact
+          service: backend
+        - path: /metrics
+          pathType: Exact
+          service: backend
+        - path: /uploads
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: myblogspot-prod-tls
+      hosts:
+        - gryffin-uit.site
+
+serviceMonitor:
+  enabled: true

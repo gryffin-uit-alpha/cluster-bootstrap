@@ -1,0 +1,33 @@
+# ==============================================================================
+# LOKI-STACK VALUES (Single Binary Loki + Promtail DaemonSet)
+# Ref: Knowledge_Base/Observability.md (Phần 2: Logs & Loki Architecture)
+# ==============================================================================
+
+loki:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClassName: gp3
+    size: 10Gi
+  config:
+    auth_enabled: false
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h # 7 days retention
+    limits_config:
+      retention_period: 168h
+      max_query_length: 721h
+      max_query_lookback: 720h
+
+promtail:
+  enabled: true
+  config:
+    logLevel: info
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+
+fluent-bit:
+  enabled: false
+
+grafana:
+  enabled: false # We use Grafana from kube-prometheus-stack

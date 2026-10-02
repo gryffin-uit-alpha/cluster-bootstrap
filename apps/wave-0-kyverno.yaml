@@ -1,0 +1,74 @@
+# ==============================================================================
+# SYNC WAVE 0: POLICY CONTROLLER (Kyverno Admission Controller)
+# Ref: Knowledge_Base/Security.md (Phần 5: Admission Control — Kyverno)
+# Tuned for 2-Node EKS Cluster (1 replica each controller, strict limits)
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wave-0-kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://kyverno.github.io/kyverno
+    chart: kyverno
+    targetRevision: 3.2.6
+    helm:
+      values: |
+        admissionController:
+          replicas: 1
+          resources:
+            limits:
+              memory: 384Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+
+        backgroundController:
+          replicas: 1
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+
+        cleanupController:
+          replicas: 1
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+
+        reportsController:
+          replicas: 1
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+
+        features:
+          admissionReports:
+            enabled: true
+          policyReports:
+            enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true

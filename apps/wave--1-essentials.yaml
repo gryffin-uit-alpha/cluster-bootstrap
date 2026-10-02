@@ -1,0 +1,28 @@
+# ==============================================================================
+# SYNC WAVE -1: CLUSTER ESSENTIALS (Metrics Server for HPA & kubectl top)
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wave--1-essentials
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gryffin-uit-alpha/cluster-bootstrap.git
+    targetRevision: HEAD
+    path: bootstrap/wave--1-essentials
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true

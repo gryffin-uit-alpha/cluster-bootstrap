@@ -1,0 +1,14 @@
+apiVersion: v2
+name: myblogspot
+description: Production-grade Helm Chart for MyBlogSpot (Go API + Next.js Frontend)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - blog
+  - golang
+  - nextjs
+  - devops
+  - gitops
+maintainers:
+  - name: gryffin-uit-alpha
