@@ -74,9 +74,9 @@ spec:
             storageClassName: gp3
             size: 5Gi
           additionalDataSources:
-            - name: Loki
+            - name: Loki-Cluster
               type: loki
-              url: http://loki.monitoring.svc.cluster.local:3100
+              url: http://wave-1-logging-loki.monitoring.svc.cluster.local:3100
               access: proxy
               isDefault: false
               jsonData:
