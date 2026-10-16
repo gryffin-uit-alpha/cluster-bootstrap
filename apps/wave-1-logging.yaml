@@ -23,6 +23,8 @@ spec:
         loki:
           enabled: true
           isDefault: false
+          image:
+            tag: 2.9.10
           persistence:
             enabled: true
             storageClassName: gp3
