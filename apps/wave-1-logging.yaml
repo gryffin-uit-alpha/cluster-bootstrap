@@ -22,6 +22,7 @@ spec:
       values: |
         loki:
           enabled: true
+          isDefault: false
           persistence:
             enabled: true
             storageClassName: gp3
@@ -41,7 +42,7 @@ spec:
           config:
             logLevel: info
             clients:
-              - url: http://loki:3100/loki/api/v1/push
+              - url: http://wave-1-logging-loki:3100/loki/api/v1/push
 
         fluent-bit:
           enabled: false
