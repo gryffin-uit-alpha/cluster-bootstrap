@@ -1,0 +1,50 @@
+# ==============================================================================
+# SYNC WAVE -1: KARPENTER CONTROLLER (JUST-IN-TIME NODE AUTOSCALER)
+# Chart: oci://public.ecr.aws/karpenter/karpenter (v1.0.8)
+# IRSA Role: staging-myblogspot-karpenter-controller-role
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wave--1-karpenter
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: public.ecr.aws/karpenter
+    chart: karpenter
+    targetRevision: 1.0.8
+    helm:
+      releaseName: karpenter
+      valuesObject:
+        replicas: 1
+        serviceAccount:
+          create: true
+          name: karpenter
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::736052310305:role/staging-myblogspot-karpenter-controller-role
+        settings:
+          clusterName: staging-myblogspot-eks
+          interruptionQueue: staging-myblogspot-eks-karpenter-interruption
+        controller:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: karpenter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
