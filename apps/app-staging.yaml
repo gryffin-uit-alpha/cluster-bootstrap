@@ -40,3 +40,8 @@ spec:
         - /spec/data
         - /spec/target/deletionPolicy
         - /spec/target/template/mergePolicy
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+
